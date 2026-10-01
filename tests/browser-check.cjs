@@ -453,7 +453,7 @@ const projectCases = [
     const photos = picture.photos.filter((photo) => photo.width === 1080 && photo.height === picture.height);
     const crops = picture.pdfCrops.filter((crop) => crop.width === 1080 && crop.height === picture.height);
     assert.equal(photos.filter((photo) => /^data:image\//.test(photo.source)).length, backup.data.referenceImages.length, '参考图应完整绘入清单');
-    assert.ok(photos.some((photo) => /logo\.svg\?v=4$/.test(photo.source)), '需求清单应绘入与网站相同的批准 Logo');
+    assert.ok(photos.some((photo) => /share-icon\.png\?v=5$/.test(photo.source)), '需求清单应绘入与网站相同的批准 Logo');
     assert.equal(crops.length, pageCount, '实际分页裁切数应与 PDF 页面数一致');
     assert.equal(crops[0].start, 0);
     assert.equal(crops.at(-1).end, picture.height);
