@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="电竞俱乐部建站需求收集工具。整理品牌、菜单、功能与素材，生成文字和长图需求单，草稿保存在自己的浏览器。">
+  <title>AKI CLUB WEBSITE · 建站需求收集</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-brand" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9m4 0 3 2"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1a2 2 0 0 0 1-4 2 2 0 0 1 1-4h3a3 3 0 0 0 3-3 9 9 0 0 0-9-7Z"/><path d="M7 10h.01M10 6h.01M16 7h.01M6 15h.01"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 1-8 8H5l-3 3V11a9 9 0 0 1 18 0Z"/><path d="M7 10h8M7 14h5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12l4 4v12a2 2 0 0 1-2 2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+</defs></svg>
+<a class="skip-link" href="#briefForm">跳到需求表单</a>
+<header class="topbar">
+  <a class="brand" href="./" aria-label="AKI 需求工具首页"><span class="brand-mark" id="brandMark">A<span></span></span><span><b id="brandTitle">AKI CLUB WEBSITE</b><small>让每个俱乐部，都有自己的主场</small></span></a>
+  <div class="header-actions"><span class="save-indicator"><i></i><span id="saveStatus" role="status">草稿保存在此浏览器</span></span><button class="button light settings-trigger" id="settingsBtn" type="button"><svg><use href="#i-settings"/></svg><span>模板设置</span></button></div>
+</header>
+<div class="app-shell">
+  <aside class="sidebar" aria-label="填写步骤与草稿管理">
+    <div class="sidebar-caption">项目工作台 <span>BRIEF</span></div>
+    <div class="sidebar-project"><span class="project-dot"></span><b>新项目需求</b><span class="tiny-pill">本地</span></div>
+    <div class="progress-heading"><span>填写进度</span><b id="progressCount">0 / 6</b></div>
+    <progress id="progressBar" value="0" max="6" aria-label="已填写模块数量"></progress>
+    <nav class="step-nav" aria-label="需求模块">
+      <button class="step-link active blue" data-step="0" type="button" aria-current="step"><span class="step-icon"><svg><use href="#i-brand"/></svg></span><span>基础资料</span><span class="step-state">01</span></button>
+      <button class="step-link coral" data-step="1" type="button"><span class="step-icon"><svg><use href="#i-palette"/></svg></span><span>视觉方向</span><span class="step-state">02</span></button>
+      <button class="step-link green" data-step="2" type="button"><span class="step-icon"><svg><use href="#i-grid"/></svg></span><span>内容结构</span><span class="step-state">03</span></button>
+      <button class="step-link amber" data-step="3" type="button"><span class="step-icon"><svg><use href="#i-spark"/></svg></span><span>网站功能</span><span class="step-state">04</span></button>
+      <button class="step-link pink" data-step="4" type="button"><span class="step-icon"><svg><use href="#i-message"/></svg></span><span>联系与部署</span><span class="step-state">05</span></button>
+      <button class="step-link teal" data-step="5" type="button"><span class="step-icon"><svg><use href="#i-file"/></svg></span><span>参考与素材</span><span class="step-state">06</span></button>
+    </nav>
+    <div class="draft-tools"><span class="sidebar-caption">草稿管理</span><button id="exportDraftBtn" type="button">导出草稿 <span>↗</span></button><button id="importDraftBtn" type="button">导入草稿 <span>↙</span></button><button id="clearDraftBtn" type="button">清空当前项目 <span>×</span></button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
+    <div class="privacy-note"><svg><use href="#i-lock"/></svg><div><b>你的资料，留在你手里。</b><p>填写内容仅保存在此浏览器。导出需求单后，再自行发送给客服。</p></div></div>
+    <div class="sidebar-footer">AKI / TOOLS <span class="color-dots"><i></i><i></i><i></i><i></i></span></div>
+  </aside>
+  <main id="mainContent">
+    <div class="breadcrumb">工作台 <span>/</span> 俱乐部建站 <span>/</span><b>需求收集</b></div>
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-copy"><div class="eyebrow"><span class="color-dots"><i></i><i></i><i></i><i></i></span> A LITTLE BRIEF. A GREAT START.</div><h1 id="heroTitle">你的俱乐部，<br>从这里开始。</h1><p id="heroDesc">把品牌、内容和想要的功能整理清楚。<br>六个小步骤，生成一份可以直接沟通的建站需求。</p><div class="hero-tags"><span><svg><use href="#i-check"/></svg> 自动保存</span><span><svg><use href="#i-check"/></svg> 文字与长图</span><span><svg><use href="#i-check"/></svg> 手机也好用</span></div></div>
+      <div class="brief-art" aria-hidden="true"><div class="art-note">a good idea<br>starts here. <span>↘</span></div><div class="art-paper"><span class="paper-kicker">YOUR NEXT CLUB WEBSITE</span><strong>Project<br>Brief<span class="paper-dot">.</span></strong><div class="paper-rule"></div><div class="paper-tags"><span>品牌 Brand</span><span>功能 Features</span><span>素材 Assets</span></div><div class="paper-lines"><i></i><i></i><i></i></div><div class="paper-bottom"><span>AKI STUDIO</span><svg><use href="#i-arrow"/></svg></div></div><div class="art-sticker"><svg><use href="#i-spark"/></svg></div></div>
+    </section>
+    <div class="workspace-heading"><div><h2>整理你的新项目</h2><p>不确定的内容可以留空，后续再一起确认。</p></div><button class="button light" id="saveBtn" type="button"><svg><use href="#i-save"/></svg> 保存草稿</button></div>
+    <div class="workspace">
+      <div class="form-card">
+        <div class="form-topline"><span><i></i> <span id="currentStepLabel">基础资料</span></span><span id="stepPosition">01 / 06</span></div>
+        <form id="briefForm" autocomplete="off">
+          <section class="step-panel blue active" data-step="0" aria-labelledby="title-basic">
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-brand"/></svg></span><div><h3 id="title-basic">先认识一下你的俱乐部</h3><p>品牌名称是起点，其他资料可以慢慢补充。</p></div></div>
+            <div class="field-grid"><div class="field"><label for="clubName">俱乐部名称 <span class="required">*</span></label><input id="clubName" name="clubName" type="text" maxlength="100" placeholder="例如：AKI 电竞" required><small>生成需求单前，请填写俱乐部名称。</small></div><div class="field"><label for="clubEnglish">英文名称 <span class="optional">选填</span></label><input id="clubEnglish" type="text" maxlength="100" placeholder="例如：AKI CLUB"></div><div class="field full"><label for="games">主营游戏</label><input id="games" type="text" maxlength="500" placeholder="例如：三角洲行动、王者荣耀、无畏契约"></div><div class="field full"><label for="audience">主要客户群</label><input id="audience" type="text" maxlength="500" placeholder="例如：大学生、女性玩家、三角洲玩家"></div></div>
+            <div class="field-note"><svg><use href="#i-spark"/></svg><span>名字还没定？可以先填项目暂定名，随时修改。</span></div>
+          </section>
+          <section class="step-panel coral" data-step="1" aria-labelledby="title-brand" hidden>
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-palette"/></svg></span><div><h3 id="title-brand">你想要什么样的第一印象？</h3><p>选几个接近的风格，再告诉我们你喜欢的颜色。</p></div></div>
+            <fieldset><legend>品牌风格 <span class="optional">可多选</span></legend><div class="choice-grid" id="styleChoices"></div></fieldset>
+            <div class="field-grid spaced"><div class="field"><label for="brandColor">品牌主色</label><input id="brandColor" type="text" maxlength="120" placeholder="例如：白色、浅粉、黑白"></div><div class="field"><label for="accentColor">辅助色</label><input id="accentColor" type="text" maxlength="120" placeholder="例如：彩色点缀、薄荷绿、奶油黄"></div><div class="field full"><label for="brandKeywords">品牌关键词</label><input id="brandKeywords" type="text" maxlength="500" placeholder="例如：干净、年轻、有游戏感、女性向"></div></div>
+          </section>
+          <section class="step-panel green" data-step="2" aria-labelledby="title-content" hidden>
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-grid"/></svg></span><div><h3 id="title-content">把你想展示的内容列出来</h3><p>菜单、成员、活动，都可以成为网站的一部分。</p></div></div>
+            <div class="field-grid"><div class="field"><label for="menuCount">菜单数量</label><input id="menuCount" type="text" maxlength="100" placeholder="例如：30 张 / 暂时还没统计"></div><div class="field"><label for="staffCount">陪玩 / 人员数量</label><input id="staffCount" type="text" maxlength="100" placeholder="例如：12 位；没有可以留空"></div><div class="field full"><label for="menuCategories">菜单分类</label><input id="menuCategories" type="text" maxlength="1000" placeholder="例如：推荐 / 趣味 / 护航 / 陪玩"></div><div class="field full"><label for="contentModules">首页重点展示什么？</label><textarea id="contentModules" maxlength="5000" placeholder="例如：热门推荐、老板权益、最新活动、陪玩成员、真实好评、付款方式…"></textarea></div></div>
+          </section>
+          <section class="step-panel amber" data-step="3" aria-labelledby="title-features" hidden>
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-spark"/></svg></span><div><h3 id="title-features">让网站做你需要的事</h3><p>按实际需求选择，选项是需求记录，具体实现再确认。</p></div></div>
+            <fieldset><legend>需要的网站功能 <span class="optional">可多选</span></legend><div class="choice-grid feature-grid" id="featureChoices"></div></fieldset>
+            <div class="field-note"><svg><use href="#i-file"/></svg><span>菜单搜索、分类和客服入口会写入需求建议。后台管理、账号和订单等功能，需要进一步确认服务端方案。</span></div>
+          </section>
+          <section class="step-panel pink" data-step="4" aria-labelledby="title-contact" hidden>
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-message"/></svg></span><div><h3 id="title-contact">让客户找到你</h3><p>填写俱乐部的客服信息，以及预计的网站部署方式。</p></div></div>
+            <div class="field-grid"><div class="field full"><label for="contactMethods">客服渠道</label><input id="contactMethods" type="text" maxlength="500" placeholder="例如：微信 / QQ / KOOK / 微信公众号"></div><div class="field"><label for="contactId">主要客服号</label><input id="contactId" type="text" maxlength="200" placeholder="填写俱乐部客服的账号"></div><div class="field"><label for="businessHours">客服时间</label><input id="businessHours" type="text" maxlength="200" placeholder="例如：9:00–02:00 / 24H"></div><div class="field full"><label for="domain">域名 / 已有网站 <span class="optional">选填</span></label><input id="domain" type="url" maxlength="2000" placeholder="https://example.com/"><small>请填写完整链接，包含 https:// 或 http://。</small></div></div>
+            <fieldset class="spaced"><legend>部署方式 <span class="optional">单选</span></legend><div class="choice-grid" id="deployChoices"></div></fieldset>
+          </section>
+          <section class="step-panel teal" data-step="5" aria-labelledby="title-materials" hidden>
+            <div class="section-heading"><span class="section-icon"><svg><use href="#i-file"/></svg></span><div><h3 id="title-materials">最后，带上你的灵感和素材</h3><p>勾选已经准备好的素材，链接和特别要求也写在这里。</p></div></div>
+            <fieldset><legend>已准备的素材 <span class="optional">可多选</span></legend><div class="choice-grid" id="materialChoices"></div></fieldset>
+            <div class="field-grid spaced"><div class="field full"><label for="reference">参考网站 / 参考图片</label><textarea id="reference" maxlength="5000" placeholder="粘贴网站或图片链接，或描述喜欢哪种视觉风格。"></textarea></div><div class="field full"><label for="extra">其他要求</label><textarea id="extra" maxlength="5000" placeholder="例如：白色为主，彩色点缀；手机优先；活动页单独做…"></textarea></div></div>
+            <div class="field-note"><svg><use href="#i-lock"/></svg><span>这里仅记录素材清单。请通过你和客服约定的渠道发送实际素材。</span></div>
+          </section>
+        </form>
+        <div class="step-actions"><button id="prevBtn" class="button light" type="button" disabled><span>←</span> 上一步</button><span class="step-actions-tip">随时保存，随时回来。</span><button id="nextBtn" class="button dark" type="button"><span id="nextLabel">下一步</span> <svg><use href="#i-arrow"/></svg></button></div>
+      </div>
+      <aside class="summary-card" aria-label="项目实时摘要">
+        <div class="summary-head"><span>YOUR PROJECT</span><span class="color-dots"><i></i><i></i><i></i><i></i></span></div><h3 id="summaryName">新主场，正在酝酿。</h3><p class="summary-subtitle">你填写的想法，会汇集在这里。</p>
+        <dl><div><dt>主营游戏</dt><dd id="summaryGames">待填写</dd></div><div><dt>品牌风格</dt><dd id="summaryStyle">待选择</dd></div><div><dt>网站功能</dt><dd id="summaryFeatures">待选择</dd></div><div><dt>部署方式</dt><dd id="summaryDeploy">待确认</dd></div></dl>
+        <div class="summary-progress"><span>已填写模块</span><b id="summaryProgress">0 / 6</b></div><button class="button dark" id="previewBtn" type="button"><svg><use href="#i-eye"/></svg> 预览需求单</button><button class="button light" id="copyBtn" type="button">复制需求文字 <span>↗</span></button><p class="summary-footnote">生成后可下载文字或长图，<br>再自行发送给客服。</p>
+      </aside>
+    </div>
+    <footer class="main-footer"><span id="footerBrand">AKI CLUB WEBSITE · PROJECT BRIEF</span><span>一点想法，一个开始。<span class="footer-spark">✦</span></span></footer>
+  </main>
+</div>
+<dialog id="previewDialog" class="dialog preview-dialog" aria-labelledby="previewTitle"><div class="dialog-head"><div><span class="eyebrow">READY TO SHARE</span><h2 id="previewTitle">你的项目需求单</h2><p>检查一下内容，再复制或下载给客服。</p></div><button class="close-button" type="button" data-close aria-label="关闭需求预览">×</button></div><pre id="previewText" tabindex="0"></pre><div class="dialog-actions"><button class="button light" id="textBtn" type="button"><svg><use href="#i-file"/></svg> 下载文字</button><button class="button light" id="imageBtn" type="button">生成长图</button><button class="button dark" id="sheetCopyBtn" type="button">复制需求单 <span>↗</span></button></div></dialog>
+<dialog id="imageDialog" class="dialog image-dialog" aria-labelledby="imageTitle"><div class="dialog-head"><div><span class="eyebrow">PROJECT BRIEF / PNG</span><h2 id="imageTitle">需求长图</h2><p id="imageHint">可下载保存，再发给客服。</p></div><button class="close-button" type="button" data-close aria-label="关闭长图预览">×</button></div><div class="image-preview"><img id="exportImage" alt="当前项目的完整建站需求长图"></div><div class="dialog-actions"><button class="button light" type="button" data-close>返回</button><button class="button dark" id="downloadImageBtn" type="button">下载长图 <span>↓</span></button></div></dialog>
+<dialog id="settingsDialog" class="dialog" aria-labelledby="settingsTitle"><div class="dialog-head"><div><span class="eyebrow">MAKE IT YOURS</span><h2 id="settingsTitle">模板设置</h2><p>自定义品牌与选项，仅在当前浏览器生效。</p></div><button class="close-button" type="button" data-close aria-label="关闭模板设置">×</button></div><div class="settings-body field-grid"><div class="field full"><label for="setBrandTitle">顶部品牌名称</label><input id="setBrandTitle" type="text" maxlength="120"></div><div class="field full"><label for="setHeroTitle">表单标题</label><input id="setHeroTitle" type="text" maxlength="120"></div><div class="field full"><label for="setHeroDesc">表单说明</label><textarea id="setHeroDesc" maxlength="1000"></textarea></div><div class="field"><label for="setStyles">品牌风格选项</label><textarea id="setStyles" maxlength="10000"></textarea></div><div class="field"><label for="setFeatures">功能选项</label><textarea id="setFeatures" maxlength="10000"></textarea></div><div class="field"><label for="setDeploy">部署选项</label><textarea id="setDeploy" maxlength="10000"></textarea></div><div class="field"><label for="setMaterials">素材选项</label><textarea id="setMaterials" maxlength="10000"></textarea></div><p class="settings-hint full">选项每行一个。调整选项会移除已取消的选择；其他填写内容保留。</p></div><div class="dialog-actions"><button class="button light danger" id="resetTemplateBtn" type="button">恢复默认模板</button><button class="button dark" id="saveTemplateBtn" type="button">保存模板设置 <svg><use href="#i-check"/></svg></button></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><div class="noscript">请启用浏览器 JavaScript，才能填写、保存与导出需求单。</div></noscript>
+</body>
+</html>
