@@ -8,6 +8,8 @@
 
 线上地址：https://akihowaito.github.io/aki-club-brief/
 
+分享链接可使用 `https://akihowaito.github.io/aki-club-brief/?v=5`。分享图片为同源 512 × 512 PNG，并提供静态 Open Graph 标题、简介、图片地址及 PNG / ICO / Apple 图标。实际聊天卡片由分享客户端读取及缓存，已发送的旧卡片不会由网页主动更新。
+
 ## 本地运行
 
 无运行时依赖，无构建步骤：

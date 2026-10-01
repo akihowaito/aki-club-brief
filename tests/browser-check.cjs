@@ -116,14 +116,14 @@ const projectCases = [
     assert.notEqual(logo.text, 'A');
     assert.ok(logo.radius < logo.width / 2, '品牌色块不应是圆形');
     assert.ok(['none', 'normal', '""'].includes(logo.after), 'Logo 不应保留原圆点');
-    assert.equal(await page.locator('.brand-mark img').getAttribute('src'), 'logo.svg?v=4');
-    await page.waitForFunction(() => document.querySelector('.brand-mark img').naturalWidth === 256);
-    const logoSource = await page.locator('.brand-mark img').evaluate(async (image) => (await fetch(image.src)).text());
+    assert.equal(await page.locator('.brand-mark img').getAttribute('src'), 'share-icon.png?v=5');
+    await page.waitForFunction(() => document.querySelector('.brand-mark img').naturalWidth === 512);
+    const logoSource = await page.evaluate(async () => (await fetch('logo.svg?v=4')).text());
     assert.match(logoSource, /粉白叠页/);
     assert.match(logoSource, /#F3DDE9/i);
     assert.match(logoSource, /#FFFFFF/i);
     assert.equal(/<image\b|<circle\b/.test(logoSource), false, '批准的 Logo 应为叠页纯向量图形');
-    assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'), 'favicon.svg?v=4');
+    assert.equal(await page.locator('link[rel="icon"][type="image/svg+xml"]').getAttribute('href'), 'favicon.svg?v=4');
     assert.deepEqual(await page.locator('script[src]').evaluateAll((scripts) => scripts.map((script) => script.getAttribute('src'))), ['receipt.js?v=4', 'app.js?v=4']);
     assert.equal(await page.locator('link[rel="stylesheet"]').getAttribute('href'), 'styles.css?v=4');
     assert.ok((await page.locator('body').innerText()).includes('akihowaito'));
