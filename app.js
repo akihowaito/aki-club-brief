@@ -5,9 +5,39 @@
   const DRAFT_KEY = 'aki_club_brief_draft_v1';
   const OLD_STYLES = ['可爱甜系', 'INS 高级感', '硬核电竞', '简约现代', '卡通 3D', '毛玻璃', '清新明亮', '暗黑科技'];
   const IMAGE_LIMIT = 1800000;
+  const PROJECT_TYPES = {
+    club: {
+      label: '俱乐部网页', nameLabel: '俱乐部名称', gameLabel: '主营游戏',
+      contentLabels: ['菜单数量', '陪玩 / 人员数量', '菜单分类', '首页重点内容'],
+      basicHeading: '先认识一下你的俱乐部', basicDesc: '品牌名称是起点，其他资料可以慢慢补充。',
+      contentHeading: '把你想展示的内容列出来', contentDesc: '菜单、成员、活动，都可以成为网站的一部分。',
+      placeholders: ['例如：AKI 电竞', '例如：30 张 / 暂时还没统计', '例如：12 位；没有可以留空', '例如：推荐 / 趣味 / 护航 / 陪玩', '例如：热门推荐、老板权益、最新活动、陪玩成员、真实好评、付款方式…']
+    },
+    event: {
+      label: '俱乐部活动网页', nameLabel: '活动 / 项目名称', gameLabel: '关联游戏',
+      contentLabels: ['活动时间', '参与人数 / 名额', '活动类型', '活动内容与规则'],
+      basicHeading: '先认识一下你的活动', basicDesc: '写下活动名称、关联游戏与参与人群。',
+      contentHeading: '把活动安排和规则列出来', contentDesc: '时间、名额、活动内容和参与规则，都可以写在这里。',
+      placeholders: ['例如：AKI 周年庆活动', '例如：10 月 1 日至 10 月 7 日', '例如：限 100 人 / 不限名额', '例如：周年庆 / 节日活动 / 比赛 / 报名', '例如：活动介绍、参与条件、活动流程、奖励与领取规则…']
+    },
+    interactive: {
+      label: '互动玩法网页', nameLabel: '玩法 / 项目名称', gameLabel: '适用游戏',
+      contentLabels: ['玩法数量', '参与人数', '互动玩法类型', '玩法流程与规则'],
+      basicHeading: '先认识一下你的玩法', basicDesc: '给玩法一个名字，再写下适用游戏与参与人群。',
+      contentHeading: '把玩法流程和规则列出来', contentDesc: '写清楚如何参与、如何获得结果，以及有哪些限制。',
+      placeholders: ['例如：AKI 幸运转盘', '例如：1 个转盘 + 1 个刮刮卡', '例如：每人参与 / 多人同场 / 不限人数', '例如：抽奖 / 转盘 / 刮刮卡 / 骰子 / 小游戏', '例如：参与入口、次数限制、奖项、抽取流程、结果展示与兑换规则…']
+    },
+    other: {
+      label: '定制其他', nameLabel: '项目名称', gameLabel: '相关游戏',
+      contentLabels: ['预计页面数量', '主要使用人数', '页面 / 内容分类', '你想实现什么'],
+      basicHeading: '先认识一下你的项目', basicDesc: '写下项目名称和主要用户，其他想法可以慢慢补充。',
+      contentHeading: '把你想实现的内容列出来', contentDesc: '页面、使用人数和想解决的问题，都可以写在这里。',
+      placeholders: ['例如：会员展示页 / 品牌介绍页', '例如：1 个首页 + 3 个内容页', '例如：小范围内部使用 / 面向所有访客', '例如：首页 / 关于我们 / 产品 / 联系方式', '描述你的想法、使用场景，以及希望用户在网页里完成什么…']
+    }
+  };
   const DEFAULT = {
-    brandTitle: '定制化俱乐部网页',
-    heroTitle: '俱乐部网页\n只为你专属打造',
+    brandTitle: '定制化网页',
+    heroTitle: '你的想法\n只为你专属打造',
     heroDesc: '把品牌、内容和想要的功能整理清楚。\n六个小步骤，生成一份可以直接沟通的建站需求。',
     styles: [...OLD_STYLES, '奶油温柔', '极简留白', '日系清透', '韩系少女', '复古像素', '潮流街头', '杂志排版', '手绘涂鸦', '赛博未来', '运动活力', '自然治愈', '精致轻奢', '国潮东方', '黑白极简', '彩虹渐变', '其他'],
     features: ['菜单展示', '菜单搜索', '分类筛选', '手机底部导航', '客服联系', '陪玩展示', '互动玩法', '点单夹', '价格计算', '下单表单', '付款页面', '活动专区', '真实好评', '后台管理', '数据统计', '其他'],
@@ -34,6 +64,7 @@
   const $$ = (selector) => [...document.querySelectorAll(selector)];
   const form = $('#briefForm');
   let currentStep = 0;
+  let projectType = 'club';
   let config = freshDefault();
   let saveTimer;
   let toastTimer;
@@ -76,7 +107,7 @@
         if (strict) throw new Error('每组选项需有 1–80 项，每项不超过 120 字且独占一行');
         continue;
       }
-      result[key] = [...new Set(items.map((item) => item.trim()))];
+      result[key] = [...new Set(items.map((item) => key === 'features' ? featureName(item.trim()) : item.trim()))];
     }
     result.brandTitle = DEFAULT.brandTitle;
     result.heroTitle = DEFAULT.heroTitle;
@@ -93,6 +124,10 @@
     return value === '待确认' ? '' : value;
   }
 
+  function featureName(value) {
+    return ['静态趣味单', '静态趣味菜单'].includes(value) ? '互动玩法' : value;
+  }
+
   function rasterSource(src) {
     if (typeof src !== 'string') return false;
     const match = src.match(/^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/);
@@ -105,9 +140,12 @@
 
   function cleanData(source, strict = false, choices = config) {
     if (!plainObject(source)) throw new Error('项目数据格式不正确');
-    const allowed = [...Object.keys(FIELD_LIMITS), ...OPTION_KEYS, 'primaryColors', 'accentColors', 'referenceImages'];
+    const allowed = [...Object.keys(FIELD_LIMITS), ...OPTION_KEYS, 'primaryColors', 'accentColors', 'referenceImages', 'projectType'];
     if (strict && Object.keys(source).some((key) => !allowed.includes(key))) throw new Error('项目数据含有不支持的字段');
     const result = {};
+    const type = Object.hasOwn(source, 'projectType') ? source.projectType : 'club';
+    if ((typeof type !== 'string' || !Object.hasOwn(PROJECT_TYPES, type)) && strict) throw new Error('项目类型不正确，请使用支持的四种分类');
+    result.projectType = typeof type === 'string' && Object.hasOwn(PROJECT_TYPES, type) ? type : 'club';
     for (const [key, limit] of Object.entries(FIELD_LIMITS)) {
       const value = Object.hasOwn(source, key) ? source[key] : '';
       if (typeof value !== 'string' || value.length > limit) {
@@ -123,6 +161,7 @@
         continue;
       }
       if (key === 'deploy') values = values.map(deployment).filter(Boolean);
+      if (key === 'features') values = [...new Set(values.map(featureName))];
       if (strict && values.some((value) => !choices[key].includes(value))) throw new Error('勾选项与备份中的选项不一致');
       result[key] = [...new Set(values.filter((value) => choices[key].includes(value)))];
     }
@@ -160,6 +199,7 @@
   function formData(flush = true) {
     if (flush) flushTags();
     const data = {
+      projectType,
       ...Object.fromEntries(Object.keys(FIELD_LIMITS).map((key) => [key, document.getElementById(key).value])),
       ...Object.fromEntries(OPTION_KEYS.map((key) => [key, selected(key)])),
       ...Object.fromEntries(Object.entries(colorValues).map(([key, items]) => [key, items.filter((item) => item.selected).map(({ hex, name }) => ({ hex, name }))])),
@@ -173,6 +213,7 @@
   }
 
   function applyData(data) {
+    projectType = data.projectType || 'club';
     for (const key of Object.keys(FIELD_LIMITS)) {
       const input = document.getElementById(key);
       input.value = data[key] || '';
@@ -196,7 +237,50 @@
     renderReferenceImages();
     restoreHours(data.businessHours || '');
     updateOtherFields();
+    renderProjectType();
     updateSummary();
+  }
+
+  function renderProjectType() {
+    const project = PROJECT_TYPES[projectType];
+    for (const selector of ['#summaryType', '#currentProjectType', '#breadcrumbType', '#sidebarProjectType']) $(selector).textContent = project.label;
+    $('#workspaceTitle').textContent = '整理你的' + project.label + '需求';
+    $('#summaryGames').previousElementSibling.textContent = project.gameLabel;
+    $$('[data-project-type]').forEach((button) => {
+      const active = button.dataset.projectType === projectType;
+      button.classList.toggle('active', active);
+      button.classList.toggle('selected', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    const label = (id, text) => {
+      const element = $(`label[for="${id}"]`);
+      const firstText = [...element.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+      if (firstText) firstText.textContent = text + ' ';
+      else element.prepend(document.createTextNode(text + ' '));
+    };
+    label('clubName', project.nameLabel);
+    label('gamesEntry', project.gameLabel + (projectType === 'other' ? '（选填）' : ''));
+    const contentIds = ['menuCount', 'staffCount', 'menuCategories', 'contentModules'];
+    contentIds.forEach((id, index) => label(id, project.contentLabels[index]));
+    ['clubName', ...contentIds].forEach((id, index) => { document.getElementById(id).placeholder = project.placeholders[index]; });
+    $('#title-basic').textContent = project.basicHeading;
+    $('#title-basic').nextElementSibling.textContent = project.basicDesc;
+    $('#title-content').textContent = project.contentHeading;
+    $('#title-content').nextElementSibling.textContent = project.contentDesc;
+    $('#clubName').parentElement.querySelector('small').textContent = '生成需求单前，请填写' + project.nameLabel + '。';
+    const game = projectType === 'club' ? '游戏' : project.gameLabel;
+    $('#gamesEntry').placeholder = '输入王者荣耀，按空格添加下一个' + game;
+    $('#gamesHint').textContent = '空格或回车添加一个' + game + '，点击标签旁的 × 可移除。';
+    label('audience', projectType === 'club' ? '主要客户群' : projectType === 'event' ? '参与人群' : '主要用户');
+    $('#audience').placeholder = projectType === 'club' ? '例如：大学生、女性玩家、三角洲玩家' : projectType === 'event' ? '例如：俱乐部成员、报名玩家、活动访客' : '例如：游戏玩家、会员、内部使用人员';
+    const club = projectType === 'club';
+    label('contactMethods', club ? '客服渠道' : '联系渠道');
+    label('contactId', club ? '主要客服号' : '主要联系账号');
+    $('#serviceStart').closest('fieldset').querySelector('legend').textContent = club ? '客服时间' : '联系时间';
+    $('#title-contact').textContent = club ? '让客户找到你' : '让参与者或用户找到你';
+    $('#title-contact').nextElementSibling.textContent = club ? '填写俱乐部的客服信息，以及预计的网站部署方式。' : '填写项目的联系信息，以及预计的网站部署方式。';
+    $('#contactId').placeholder = club ? '填写俱乐部客服的账号' : '填写项目联系人或客服的账号';
+    $('#materialChoices input[value="俱乐部介绍文案"]')?.parentElement.querySelector('span:last-child')?.replaceChildren(document.createTextNode(club ? '俱乐部介绍文案' : '项目介绍文案'));
   }
 
   function tagEmoji(key, label) {
@@ -470,7 +554,7 @@
 
   function updateSummary() {
     $$('.choice input').forEach((input) => input.closest('.choice').classList.toggle('selected', input.checked));
-    $('#summaryName').textContent = value('clubName') || '新主场，正在酝酿。';
+    $('#summaryName').textContent = value('clubName') || (projectType === 'club' ? '新主场，正在酝酿。' : '新项目，正在酝酿。');
     $('#summaryGames').textContent = value('games') || '待填写';
     $('#summaryStyle').textContent = selected('styles').map((item) => item === '其他' && value('styleOther') ? value('styleOther') : item).join('、') || value('brandKeywords') || '待选择';
     const features = selected('features');
@@ -558,7 +642,7 @@
     flushTags();
     const name = $('#clubName');
     const domain = $('#domain');
-    name.setCustomValidity(value('clubName') ? '' : '请先填写俱乐部名称');
+    name.setCustomValidity(value('clubName') ? '' : '请先填写' + PROJECT_TYPES[projectType].nameLabel);
     domain.setCustomValidity('');
     if (value('domain')) {
       try {
@@ -578,7 +662,7 @@
         goStep(step, true);
         input.reportValidity();
         input.focus();
-        toast(input === name ? '先填写俱乐部名称，就可以生成需求单' : input === domain ? '请检查域名 / 已有网站的网址' : input === start || input === end ? '请同时填写客服开始和结束时间，或选择 24H' : '请检查标签内容长度');
+        toast(input === name ? '先填写' + PROJECT_TYPES[projectType].nameLabel + '，就可以生成需求单' : input === domain ? '请检查域名 / 已有网站的网址' : input === start || input === end ? '请同时填写开始和结束时间，或选择 24H' : '请检查标签内容长度');
         return false;
       }
     }
@@ -587,20 +671,22 @@
 
   function brief() {
     flushTags();
+    const project = PROJECT_TYPES[projectType];
+    const club = projectType === 'club';
     const field = (label, key) => `${label}：${value(key) || '待补充'}`;
-    const list = (key) => selected(key).map((item) => '✓ ' + item + (item === '其他' && key === 'features' && value('featureOther') ? '：' + value('featureOther') : '') + (item === '付款页面' ? '（不建议做）' : '')).join('\n') || '待确认';
+    const list = (key) => selected(key).map((item) => '✓ ' + (!club && item === '俱乐部介绍文案' ? '项目介绍文案' : item) + (item === '其他' && key === 'features' && value('featureOther') ? '：' + value('featureOther') : '') + (item === '付款页面' ? '（不建议做）' : '')).join('\n') || '待确认';
     const colors = (key, legacy) => [value(legacy), ...colorValues[key].filter((item) => item.selected).map((item) => item.hex.toUpperCase() + (item.name ? ' · ' + item.name : ''))].filter(Boolean).join(' / ') || '待补充';
     const styles = selected('styles').map((item) => item + (item === '其他' && value('styleOther') ? '：' + value('styleOther') : '')).join(' / ') || '待确认';
     const images = referenceImages.length ? `参考图片：${referenceImages.length} 张\n${referenceImages.map((item) => '• ' + item.name).join('\n')}\n参考图片在长图、PDF 与 JSON 备份中；文字文件仅记录图片名称。` : '参考图片：未添加';
     return [
-      `【电竞俱乐部建站 · 项目需求单】\n${config.brandTitle}`,
-      `【01 · 俱乐部基础资料】\n${field('俱乐部名称', 'clubName')}\n${field('英文名称', 'clubEnglish')}\n${field('主营游戏', 'games')}\n${field('目标用户 / 主要客户群', 'audience')}`,
+      `【定制化网页 · 项目需求单】\n${config.brandTitle}\n项目类型：${project.label}`,
+      `【01 · 项目基础资料】\n${field(project.nameLabel, 'clubName')}\n${field('英文名称', 'clubEnglish')}\n${field(project.gameLabel, 'games')}\n${field(club ? '目标用户 / 主要客户群' : projectType === 'event' ? '参与人群' : '主要用户', 'audience')}`,
       `【02 · 品牌风格与颜色】\n品牌风格：${styles}\n品牌主色：${colors('primaryColors', 'brandColor')}\n辅助色：${colors('accentColors', 'accentColor')}\n${field('品牌关键词', 'brandKeywords')}`,
-      `【03 · 菜单与内容结构】\n${field('菜单数量', 'menuCount')}\n${field('陪玩 / 人员数量', 'staffCount')}\n${field('菜单分类', 'menuCategories')}\n${field('首页重点内容', 'contentModules')}`,
+      `【03 · 内容结构与规则】\n${['menuCount', 'staffCount', 'menuCategories', 'contentModules'].map((key, index) => field(project.contentLabels[index], key)).join('\n')}`,
       `【04 · 需要的网站功能】\n${list('features')}`,
-      `【05 · 客服与部署】\n${field('客服渠道', 'contactMethods')}\n${field('主要客服号', 'contactId')}\n${field('客服时间', 'businessHours')}\n部署方式：${selected('deploy')[0] || '待确认'}\n${field('域名 / 已有网站', 'domain')}`,
+      `【05 · 联系与部署】\n${field(club ? '客服渠道' : '联系渠道', 'contactMethods')}\n${field(club ? '主要客服号' : '主要联系账号', 'contactId')}\n${field(club ? '客服时间' : '联系时间', 'businessHours')}\n部署方式：${selected('deploy')[0] || '待确认'}\n${field('域名 / 已有网站', 'domain')}`,
       `【06 · 参考与素材】\n已准备素材：\n${list('materials')}\n\n${field('参考网站 / 图片', 'reference')}\n${images}\n${field('其他要求', 'extra')}`,
-      '【沟通建议】\n• 优先考虑手机端使用体验与微信内浏览习惯\n• 建议重要信息不依赖鼠标悬浮展示，桌面端独立适配\n• 可进一步沟通菜单搜索、分类与客服入口的安排\n• 最终价格、菜单、赔付规则与联系方式以俱乐部真实资料为准\n\n说明：以上为沟通建议，未填写的内容与未选择的功能仍待确认。具体交付范围以最终确认的需求为准。'
+      '【沟通建议】\n• 优先考虑手机端使用体验与微信内浏览习惯\n• 建议重要信息不依赖鼠标悬浮展示，桌面端独立适配\n• 可进一步沟通内容分类、交互流程与联系入口的安排\n• 最终价格、内容、规则与联系方式以项目真实资料为准\n\n说明：以上为沟通建议，未填写的内容与未选择的功能仍待确认。具体交付范围以最终确认的需求为准。'
     ].join('\n\n');
   }
 
@@ -644,7 +730,7 @@
   }
 
   function filename(extension) {
-    const name = Array.from(value('clubName') || '新俱乐部').slice(0, 60).join('').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/[. ]+$/, '') || '新俱乐部';
+    const name = Array.from(value('clubName') || '新项目').slice(0, 60).join('').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/[. ]+$/, '') || '新项目';
     return name + '-建站需求单.' + extension;
   }
 
@@ -739,7 +825,7 @@
       const text = brief();
       if (text.length > 60000) throw new Error('内容过长，无法生成单张长图。请下载文字需求单，或缩短内容后重试');
       if (!window.AkiReceipt?.render || !window.AkiReceipt?.pdf) throw new Error('生成模块未加载，请刷新页面后重试');
-      const canvas = await window.AkiReceipt.render({ config, data: formData(), text });
+      const canvas = await window.AkiReceipt.render({ config, data: formData(), text, project: PROJECT_TYPES[projectType] });
       if (!canvas || canvas.width !== 1080 || canvas.height > 18000) throw new Error('内容过长，无法生成单张长图。请下载文字需求单，或缩短内容后重试');
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('长图生成失败，请下载文字需求单');
@@ -854,6 +940,15 @@
     document.getElementById(id).addEventListener('change', updateHours);
   }
   $('#referenceFiles').addEventListener('change', addReferenceImages);
+  $$('[data-project-type]').forEach((button) => button.addEventListener('click', () => {
+    const type = button.dataset.projectType;
+    if (!Object.hasOwn(PROJECT_TYPES, type)) return;
+    projectType = type;
+    renderProjectType();
+    goStep(0, true);
+    $('#projectWorkspace').scrollIntoView({ behavior: 'auto', block: 'start' });
+    scheduleSave();
+  }));
   window.addEventListener('pagehide', () => { if (saveTimer) saveDraft(); });
   $$('.step-link').forEach((button) => button.addEventListener('click', () => goStep(Number(button.dataset.step), true)));
   $('#prevBtn').addEventListener('click', () => goStep(currentStep - 1, true));

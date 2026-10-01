@@ -24,8 +24,11 @@
     context.closePath();
   }
 
-  async function render({ config = {}, data = {} } = {}) {
+  async function render({ config = {}, data = {}, project } = {}) {
+    const nonClub = project && project.label !== '俱乐部网页';
     if (document.fonts?.ready) await document.fonts.ready;
+    const brandLogo = document.querySelector('#brandMark img');
+    if (brandLogo?.decode) await brandLogo.decode().catch(() => {});
     const measuringCanvas = document.createElement('canvas');
     const measure = measuringCanvas.getContext('2d');
     if (!measure) throw new Error('当前浏览器无法生成图片，请换个浏览器后重试');
@@ -182,8 +185,8 @@
 
     const title = textValue(config.brandTitle) || '定制化俱乐部网页';
     y = writing(title, LEFT + 61, y + 3, BODY - 61, 28, 600, INK, 41, false) + 36;
-    y = writing(textValue(data.clubName) || '我的俱乐部', LEFT, y, BODY, 62, 700, INK, 84, false) + 12;
-    y = writing('建站需求清单', LEFT, y, BODY, 38, 500, INK, 54, false) + 19;
+    y = writing(textValue(data.clubName) || (project ? '我的项目' : '我的俱乐部'), LEFT, y, BODY, 62, 700, INK, 84, false) + 12;
+    y = writing(project ? `${project.label} · 需求清单` : '建站需求清单', LEFT, y, BODY, 38, 500, INK, 54, false) + 19;
     const date = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Singapore' }).format(new Date()).replace(/\//g, '.');
     y = writing(`PROJECT BRIEF  /  ${date}`, LEFT, y, BODY, 21, 500, MUTED, 32, false) + 36;
     const rainbowY = y;
@@ -209,9 +212,9 @@
     mark(y);
 
     section(0);
-    field('俱乐部名称', data.clubName);
+    field(project?.nameLabel || '俱乐部名称', data.clubName);
     field('英文名称 / 简称', data.clubEnglish);
-    chips('主营游戏', data.games, PALETTE[0]);
+    chips(project?.gameLabel || '主营游戏', data.games, PALETTE[0]);
     field('主要用户 / 客群', data.audience);
 
     section(1);
@@ -222,10 +225,11 @@
     chips('品牌关键词', data.brandKeywords, PALETTE[1]);
 
     section(2);
-    field('菜单数量', data.menuCount);
-    field('陪玩 / 成员数量', data.staffCount);
-    field('菜单分类', data.menuCategories);
-    field('想展示的内容模块', data.contentModules);
+    const contentLabels = project?.contentLabels || ['菜单数量', '陪玩 / 成员数量', '菜单分类', '想展示的内容模块'];
+    field(contentLabels[0], data.menuCount);
+    field(contentLabels[1], data.staffCount);
+    field(contentLabels[2], data.menuCategories);
+    field(contentLabels[3], data.contentModules);
 
     section(3);
     chips('需要的网站功能', tags(data.features).map((item) => item === '付款页面' ? '付款页面（不建议做）' : item), PALETTE[3]);
@@ -233,11 +237,11 @@
 
     section(4);
     field('联系渠道', data.contactMethods);
-    field('客服账号 / 联系方式', data.contactId);
+    field(nonClub ? '主要联系账号' : '客服账号 / 联系方式', data.contactId);
     let hours = textValue(data.businessHours);
     const time = hours.match(/^(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})$/);
     if (time && time[2] < time[1]) hours = `${time[1]} – 次日 ${time[2]}`;
-    field('客服时间', hours);
+    field(nonClub ? '联系时间' : '客服时间', hours);
     chips('部署方式', data.deploy, PALETTE[4]);
     field('计划使用的域名', data.domain);
 
@@ -275,7 +279,7 @@
       y += height + 18;
       mark(y - 6);
     }
-    chips('现有素材', data.materials, PALETTE[5]);
+    chips('现有素材', tags(data.materials).map((item) => nonClub && item === '俱乐部介绍文案' ? '项目介绍文案' : item), PALETTE[5]);
     field('其他补充 / 特别要求', data.extra);
 
     y += 30;
@@ -323,16 +327,12 @@
       context.bezierCurveTo(7, top + 12, 7, top + 45, 55, top + 45);
       context.stroke();
     }
-    const logo = context.createLinearGradient(LEFT, 80, LEFT + 40, 122);
-    ['#54a4ec', '#48c4ae', '#efc860', '#f094ab'].forEach((color, index) => logo.addColorStop(index / 3, color));
-    context.fillStyle = logo;
-    context.beginPath();
-    context.moveTo(LEFT + 22, 79);
-    context.lineTo(LEFT + 44, 101);
-    context.lineTo(LEFT + 22, 123);
-    context.lineTo(LEFT, 101);
-    context.closePath();
-    context.fill();
+    if (brandLogo?.naturalWidth) context.drawImage(brandLogo, LEFT - 7, 73, 61, 61);
+    else {
+      rounded(context, LEFT, 79, 44, 44, 12);
+      context.fillStyle = '#e7bdcf';
+      context.fill();
+    }
     commands.forEach((command) => command(context));
     canvas.akiBreaks = [...new Set([...breaks, height])].sort((a, b) => a - b);
     return canvas;

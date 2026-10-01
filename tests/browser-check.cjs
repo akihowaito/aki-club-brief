@@ -4,11 +4,17 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 
 const URL = process.env.TEST_URL || 'http://127.0.0.1:4178';
-const artifacts = path.resolve(process.env.ARTIFACT_DIR || path.join(__dirname, '../../../work/v2-qa'));
+const artifacts = path.resolve(process.env.ARTIFACT_DIR || path.join(__dirname, '../../../work/v4-qa'));
 const DRAFT_KEY = 'aki_club_brief_draft_v1';
 const CONFIG_KEY = 'aki_club_brief_template_v1';
 const tail = '长图最后一句也要完整保留 END_OF_BRIEF';
 const longText = '白色为主，彩色作为点缀。移动端需要清楚的导航和联系方式。'.repeat(35) + tail;
+const projectCases = [
+  { id: 'club', label: '俱乐部网页', name: '俱乐部名称', game: '主营游戏', content: ['菜单数量', '陪玩 / 人员数量', '菜单分类', '首页重点内容'], placeholder: ['AKI 电竞', '30 张', '12 位', '推荐', '热门推荐'] },
+  { id: 'event', label: '俱乐部活动网页', name: '活动 / 项目名称', game: '关联游戏', content: ['活动时间', '参与人数 / 名额', '活动类型', '活动内容与规则'], placeholder: ['周年庆', '10 月', '100 人', '节日活动', '参与条件'] },
+  { id: 'interactive', label: '互动玩法网页', name: '玩法 / 项目名称', game: '适用游戏', content: ['玩法数量', '参与人数', '互动玩法类型', '玩法流程与规则'], placeholder: ['幸运转盘', '刮刮卡', '多人同场', '小游戏', '次数限制'] },
+  { id: 'other', label: '定制其他', name: '项目名称', game: '相关游戏', content: ['预计页面数量', '主要使用人数', '页面 / 内容分类', '你想实现什么'], placeholder: ['品牌介绍页', '3 个内容页', '内部使用', '关于我们', '使用场景'] }
+];
 
 (async () => {
   await fs.mkdir(artifacts, { recursive: true });
@@ -35,12 +41,13 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     };
     const originalImage = CanvasRenderingContext2D.prototype.drawImage;
     CanvasRenderingContext2D.prototype.drawImage = function (image, ...args) {
-      if (args.length === 4) window.__paintedImages.push({ top: args[1], bottom: args[1] + args[3], width: this.canvas.width, height: this.canvas.height });
+      if (args.length === 4) window.__paintedImages.push({ top: args[1], bottom: args[1] + args[3], source: image.currentSrc || image.src || '', width: this.canvas.width, height: this.canvas.height });
       if (args.length === 8 && image instanceof HTMLCanvasElement) window.__pdfCrops.push({ start: args[1], end: args[1] + args[3], width: image.width, height: image.height });
       return originalImage.call(this, image, ...args);
     };
   });
   let checks = 0;
+  const projectEvidence = [];
   const pass = (name) => { checks++; console.log(`PASS ${name}`); };
   const step = async (index) => {
     await page.locator(`.step-link[data-step="${index}"]`).click();
@@ -70,6 +77,14 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     await label.click();
     assert.equal(await label.evaluate((element) => element.classList.contains('selected')), true, '选中项需保留旧 WebView 可用的样式 class');
   };
+  const chooseProject = async (project) => {
+    await page.locator(`[data-project-type="${project.id}"]`).click();
+    assert.equal(await page.locator('[data-project-type][aria-pressed="true"]').count(), 1);
+    assert.equal(await page.locator(`[data-project-type="${project.id}"]`).getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator(`[data-project-type="${project.id}"]`).evaluate((card) => card.classList.contains('selected')), true);
+    assert.equal(await page.locator('#summaryType').innerText(), project.label);
+    assert.match(await page.locator('#workspaceTitle').innerText(), new RegExp(project.label));
+  };
   const clearToast = () => page.evaluate(() => { document.querySelector('#toast').textContent = ''; });
   const rejectImport = async (buffer) => {
     const before = await storage();
@@ -89,23 +104,38 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     await page.waitForSelector('#styleChoices input', { state: 'attached' });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'networkidle' });
-    assert.match(await page.title(), /定制化俱乐部网页/);
-    assert.equal((await page.locator('#heroTitle').textContent()).replace(/\s/g, ''), '俱乐部网页只为你专属打造');
-    assert.match(await page.locator('.hero .eyebrow').innerText(), /CUSTOMIZE YOUR OWN E-SPORTS WEBSITE AT HERE/);
+    assert.equal(await page.title(), '定制化网页');
+    assert.equal((await page.locator('#heroTitle').textContent()).replace(/\s/g, ''), '你的想法只为你专属打造');
+    assert.match(await page.locator('.hero .eyebrow').innerText(), /CUSTOMIZE YOUR OWN WEBSITE AT HERE/);
     for (const value of ['双端优化', '审美在线', '不套模板']) assert.ok((await page.locator('.hero-tags').innerText()).includes(value));
     assert.equal(await page.locator('.art-note, #settingsBtn, #settingsDialog').count(), 0);
     const logo = await page.locator('.brand-mark').evaluate((mark) => ({
-      text: mark.textContent.trim(), gradient: getComputedStyle(mark).backgroundImage,
-      svgGradient: mark.querySelectorAll('linearGradient stop').length >= 4,
+      text: mark.textContent.trim(),
       after: getComputedStyle(mark, '::after').content, radius: parseFloat(getComputedStyle(mark).borderRadius), width: mark.clientWidth
     }));
     assert.notEqual(logo.text, 'A');
-    assert.ok(/gradient/.test(logo.gradient) || logo.svgGradient, 'Logo 应使用彩虹渐变');
     assert.ok(logo.radius < logo.width / 2, '品牌色块不应是圆形');
     assert.ok(['none', 'normal', '""'].includes(logo.after), 'Logo 不应保留原圆点');
+    assert.equal(await page.locator('.brand-mark img').getAttribute('src'), 'logo.svg?v=4');
+    await page.waitForFunction(() => document.querySelector('.brand-mark img').naturalWidth === 256);
+    const logoSource = await page.locator('.brand-mark img').evaluate(async (image) => (await fetch(image.src)).text());
+    assert.match(logoSource, /粉白叠页/);
+    assert.match(logoSource, /#F3DDE9/i);
+    assert.match(logoSource, /#FFFFFF/i);
+    assert.equal(/<image\b|<circle\b/.test(logoSource), false, '批准的 Logo 应为叠页纯向量图形');
+    assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'), 'favicon.svg?v=4');
+    assert.deepEqual(await page.locator('script[src]').evaluateAll((scripts) => scripts.map((script) => script.getAttribute('src'))), ['receipt.js?v=4', 'app.js?v=4']);
+    assert.equal(await page.locator('link[rel="stylesheet"]').getAttribute('href'), 'styles.css?v=4');
     assert.ok((await page.locator('body').innerText()).includes('akihowaito'));
     assert.equal((await page.locator('body').innerText()).includes('再自行发送给客服'), false);
-    pass('定制文案、彩虹 Logo、三项标签与移除模板设置');
+    pass('V4 定制文案、批准的粉白叠页 Logo、版本资源与三项标签');
+    assert.deepEqual(await page.locator('[data-project-type]').evaluateAll((cards) => cards.map((card) => ({ id: card.dataset.projectType, label: card.querySelector('strong').textContent }))), projectCases.map(({ id, label }) => ({ id, label })));
+    for (const project of projectCases) {
+      await chooseProject(project);
+      assert.equal(await page.locator('input[name="features"]:checked').count(), 0, '项目分类不能自动勾选功能');
+    }
+    await chooseProject(projectCases[0]);
+    pass('四种项目入口可切换，分类不自动选择任何网站功能');
 
     await page.locator('#previewBtn').click();
     assert.equal(await page.locator('#previewDialog').evaluate((dialog) => dialog.open), false);
@@ -277,6 +307,7 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     assert.equal(backup.data.clubName, '浏览器验收俱乐部');
     assert.equal(backup.data.referenceImages.length, 2);
     assert.equal(backup.data.primaryColors[0].name, '奶油白');
+    assert.equal(backup.data.projectType, 'club');
     assert.ok(backupBytes.length <= 3 * 1024 * 1024);
     await confirm(() => page.locator('#clearDraftBtn').click());
     assert.equal(await page.locator('#clubName').inputValue(), '');
@@ -289,38 +320,95 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     assert.equal(await page.locator('#extra').inputValue(), longText);
     pass('包含参考图的 JSON 真实下载、确认清空、覆盖导入与持久保存');
 
+    const { projectType: baselineType, ...baselineData } = backup.data;
+    for (const project of projectCases) {
+      await chooseProject(project);
+      await saved();
+      const { projectType: type, ...preserved } = await draft();
+      assert.equal(type, project.id);
+      assert.deepEqual(preserved, baselineData, '切换分类不能更改文字、选择、颜色或参考图片');
+      const ids = ['clubName', 'menuCount', 'staffCount', 'menuCategories', 'contentModules'];
+      for (const [index, id] of ids.entries()) {
+        assert.ok((await page.locator(`label[for="${id}"]`).innerText()).includes(index === 0 ? project.name : project.content[index - 1]), `${project.id} 字段标签不正确`);
+        assert.ok((await page.locator('#' + id).getAttribute('placeholder')).includes(project.placeholder[index]), `${project.id} 字段提示不正确`);
+      }
+      assert.ok((await page.locator('label[for="gamesEntry"]').innerText()).includes(project.game));
+      assert.ok((await page.locator('#gamesEntry').getAttribute('placeholder')).includes(project.id === 'club' ? '游戏' : project.game));
+      assert.equal(await page.locator('#summaryGames').evaluate((element) => element.previousElementSibling.textContent), project.game);
+      await page.reload({ waitUntil: 'networkidle' });
+      assert.equal(await page.locator(`[data-project-type="${project.id}"]`).getAttribute('aria-pressed'), 'true');
+      assert.equal((await draft()).projectType, project.id);
+      assert.equal(await page.locator('#referenceGallery .reference-card').count(), 2);
+      const categoryBackup = await download('#exportDraftBtn', `${project.id}-backup.json`);
+      assert.equal(JSON.parse(categoryBackup.toString('utf8')).data.projectType, project.id);
+      await chooseProject(projectCases.find((item) => item.id !== project.id));
+      await confirm(() => importPayload(categoryBackup));
+      assert.equal(await page.locator('#summaryType').innerText(), project.label);
+      assert.equal((await draft()).projectType, project.id);
+      await page.locator('#previewBtn').click();
+      const categoryText = await page.locator('#previewText').innerText();
+      for (const value of [project.label, project.name, project.game, ...project.content, tail]) assert.ok(categoryText.includes(value), `${project.id} TXT 缺少 ${value}`);
+      assert.equal((await download('#textBtn', `${project.id}-brief.txt`)).toString('utf8').replace(/^\uFEFF/, ''), categoryText);
+      await page.evaluate(() => { window.__paintedText = []; });
+      await page.locator('#imageBtn').click();
+      await page.locator('#imageDialog').waitFor({ state: 'visible' });
+      await page.waitForFunction(() => document.querySelector('#exportImage').complete && document.querySelector('#exportImage').naturalWidth === 1080);
+      const categoryImage = await page.locator('#exportImage').evaluate((image) => ({ width: image.naturalWidth, height: image.naturalHeight, text: window.__paintedText.filter((row) => row.width === image.naturalWidth && row.height === image.naturalHeight).map((row) => row.text).join('') }));
+      for (const value of [project.label, project.name, project.game, ...project.content, 'END_OF_BRIEF']) assert.ok(categoryImage.text.includes(value), `${project.id} PNG 缺少 ${value}`);
+      const categoryPng = await download('#downloadImageBtn', `${project.id}-brief.png`);
+      assert.equal(categoryPng.readUInt32BE(16), 1080);
+      const categoryPdf = await download('#downloadPdfBtn', `${project.id}-brief.pdf`);
+      assert.equal(categoryPdf.subarray(0, 5).toString(), '%PDF-');
+      const pdfPages = (categoryPdf.toString('latin1').match(/\/Type\s*\/Page\b/g) || []).length;
+      assert.ok(pdfPages >= 2);
+      projectEvidence.push({ id: project.id, label: project.label, pngWidth: categoryImage.width, pngHeight: categoryImage.height, pdfPages, pdfBytes: categoryPdf.length });
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => !document.body.classList.contains('modal-open'));
+    }
+    await confirm(() => importPayload(backupBytes));
+    pass('四类标签/提示正确，切换保留全部资料，刷新与 JSON 导入导出保留类型');
+    pass('四类均真实导出正确分类/字段的 TXT、1080px PNG 与多页 PDF');
+
     const legacy = {
       version: 1,
       config: { brandTitle: 'AKI CLUB WEBSITE', heroTitle: '新俱乐部 · 项目配置', heroDesc: '旧版说明', styles: ['可爱甜系', '简约现代'], features: ['菜单搜索', '客服联系'], deploy: ['GitHub Pages', '香港 Ubuntu 服务器'], materials: ['LOGO'] },
       data: { clubName: '旧版迁移俱乐部', games: '三角洲行动、王者荣耀', brandKeywords: '清爽、年轻', brandColor: '白色', accentColor: '薄荷绿', businessHours: '9:00–02:00', styles: ['简约现代'], features: ['菜单搜索'], deploy: ['GitHub Pages'], materials: ['LOGO'], domain: 'https://example.com/' }
     };
     await confirm(() => importPayload(Buffer.from(JSON.stringify(legacy))));
+    assert.equal((await draft()).projectType, 'club', '旧备份未记录类型时应恢复俱乐部网页');
     assert.equal(await page.locator('#gamesTags .tag-chip').count(), 2);
     assert.equal(await page.locator('#keywordTags .tag-chip').count(), 2);
     assert.equal(await page.locator('#serviceStart').inputValue(), '09:00');
     assert.equal(await page.locator('#serviceEnd').inputValue(), '02:00');
     assert.equal(await page.locator('input[name="deploy"][value="GITHUB 静态"]').isChecked(), true);
     assert.match(await page.locator('#primaryColorList').innerText(), /白色/);
-    assert.equal((await page.locator('#heroTitle').textContent()).replace(/\s/g, ''), '俱乐部网页只为你专属打造');
+    assert.equal((await page.locator('#heroTitle').textContent()).replace(/\s/g, ''), '你的想法只为你专属打造');
     await page.reload({ waitUntil: 'networkidle' });
     assert.equal(await page.locator('#clubName').inputValue(), '旧版迁移俱乐部');
     await page.evaluate(([key, old]) => localStorage.setItem(key, JSON.stringify(old)), [DRAFT_KEY, { ...legacy.data, businessHours: '随缘在线' }]);
     await page.reload({ waitUntil: 'networkidle' });
     await step(4);
     assert.match(await page.locator('#legacyHoursNote').innerText(), /随缘在线/);
+    const legacyFeatures = { ...legacy, config: { ...legacy.config, features: ['静态趣味单', '静态趣味菜单'] }, data: { ...legacy.data, features: ['静态趣味单', '静态趣味菜单'] } };
+    await confirm(() => importPayload(Buffer.from(JSON.stringify(legacyFeatures))));
+    assert.deepEqual((await draft()).features, ['互动玩法']);
+    assert.equal(await page.locator('input[name="features"][value="互动玩法"]').isChecked(), true);
+    assert.equal(await page.locator('input[name="features"][value="静态趣味单"], input[name="features"][value="静态趣味菜单"]').count(), 0);
     await confirm(() => importPayload(backupBytes));
-    pass('V1 备份/本机草稿的标签、旧颜色文字、GitHub 部署与时间兼容迁移');
+    pass('V1 缺省俱乐部分类、静态趣味单映射互动玩法及旧字段兼容迁移');
 
     for (const invalid of [
       Buffer.from('{ invalid json'),
       Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, clubName: null } })),
       Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, unknown: 'bad' } })),
+      ...[null, ['club'], 42, 'unknown', '__proto__'].map((projectType) => Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, projectType } }))),
       Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, primaryColors: Array(9).fill({ hex: '#ffffff', name: '白' }) } })),
       Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, referenceImages: [{ name: 'evil.svg', src: 'data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=' }] } })),
       Buffer.from(JSON.stringify({ ...backup, data: { ...backup.data, referenceImages: [{ name: 'bad.png', src: 'data:image/png;base64,bm90LWltYWdl' }] } })),
       Buffer.alloc(3 * 1024 * 1024 + 1, 32)
     ]) await rejectImport(invalid);
-    pass('非法 JSON、错误字段/颜色数组/图片和超过 3 MB 备份拒绝且不覆盖');
+    pass('非法项目类型、JSON/字段/颜色/图片和超大备份拒绝且不覆盖');
 
     await page.locator('#previewBtn').click();
     await page.locator('#previewDialog').waitFor({ state: 'visible' });
@@ -364,7 +452,8 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     pass(`TXT、1080×${picture.height} PNG 与真实多页 A4 PDF 下载，长文尾句完整`);
     const photos = picture.photos.filter((photo) => photo.width === 1080 && photo.height === picture.height);
     const crops = picture.pdfCrops.filter((crop) => crop.width === 1080 && crop.height === picture.height);
-    assert.equal(photos.length, backup.data.referenceImages.length, '参考图应完整绘入清单');
+    assert.equal(photos.filter((photo) => /^data:image\//.test(photo.source)).length, backup.data.referenceImages.length, '参考图应完整绘入清单');
+    assert.ok(photos.some((photo) => /logo\.svg\?v=4$/.test(photo.source)), '需求清单应绘入与网站相同的批准 Logo');
     assert.equal(crops.length, pageCount, '实际分页裁切数应与 PDF 页面数一致');
     assert.equal(crops[0].start, 0);
     assert.equal(crops.at(-1).end, picture.height);
@@ -455,8 +544,27 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
     await confirm(() => importPayload(backupBytes));
     pass('超出画布长度明确拒绝，按钮恢复并保留文字需求');
 
+    await page.waitForFunction(() => !document.querySelector('#toast').classList.contains('show'));
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: width >= 768 ? 1000 : 844 });
+      if (width === 320 || width === 390) {
+        await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+        const homeBar = await page.locator('.step-actions').boundingBox();
+        assert.ok(homeBar.y >= 844, `${width}px 首页表单操作条遮挡了分类卡片`);
+        const cards = await page.locator('[data-project-type]').evaluateAll((items) => items.map((card) => ({ id: card.dataset.projectType, scroll: card.scrollWidth, client: card.clientWidth })));
+        for (const card of cards) assert.ok(card.scroll <= card.client + 1, `${width}px ${card.id} 分类卡片内部溢出`);
+        await page.locator('#projectTypes').screenshot({ path: path.join(artifacts, `categories-${width}.png`) });
+        for (const project of projectCases) {
+          await chooseProject(project);
+          const size = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, viewport: innerWidth }));
+          assert.ok(size.scroll <= size.viewport + 1, `${width}px ${project.id} 类型页面溢出`);
+        }
+        await chooseProject(projectCases[0]);
+        await page.locator('#nextBtn').click();
+        assert.equal(await page.locator('.step-panel[data-step="1"]').isVisible(), true);
+        await page.locator('#prevBtn').click();
+        assert.equal(await page.locator('.step-panel[data-step="0"]').isVisible(), true);
+      }
       for (let index = 0; index < 6; index++) {
         await step(index);
         const size = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, viewport: innerWidth }));
@@ -467,11 +575,11 @@ const longText = '白色为主，彩色作为点缀。移动端需要清楚的�
       await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
       if (width === 390 || width === 1440) await page.screenshot({ path: path.join(artifacts, width === 390 ? 'mobile.png' : 'desktop.png'), fullPage: true });
     }
-    pass('320 / 390 / 768 / 1440 宽度六个步骤均无页面横向溢出');
+    pass('320 / 390 分类卡不溢出或被遮挡，步骤按钮可用；四宽度六步骤无横向溢出');
     assert.deepEqual(outbound, [], '参考图片处理或导出产生了上传/外部网络请求');
     pass('参考图片处理与导出没有上传或外部网络请求');
     assert.deepEqual(errors, [], '浏览器出现未处理的脚本错误');
-    await fs.writeFile(path.join(artifacts, 'results.json'), JSON.stringify({ checks, errors, outbound, image: { width: picture.width, height: picture.height }, pdfBytes: pdf.length, pageCount, pageBreaks, crossings }, null, 2));
+    await fs.writeFile(path.join(artifacts, 'results.json'), JSON.stringify({ checks, errors, outbound, projectEvidence, image: { width: picture.width, height: picture.height }, pdfBytes: pdf.length, pageCount, pageBreaks, crossings }, null, 2));
     console.log(`\n${checks} checks passed. Screenshots and downloads: ${artifacts}`);
   } finally {
     await browser.close();

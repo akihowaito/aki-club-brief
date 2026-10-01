@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="电竞俱乐部建站需求收集工具。整理品牌、菜单、功能与素材，生成文字和长图需求单，草稿保存在自己的浏览器。">
-  <title>定制化俱乐部网页</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=3">
-  <script src="receipt.js?v=2" defer></script>
-  <script src="app.js?v=2" defer></script>
+  <meta name="description" content="定制网页需求收集工具。选择俱乐部网页、俱乐部活动网页、互动玩法网页或其他定制，整理需求并分享图片或 PDF。">
+  <title>定制化网页</title>
+  <link rel="icon" href="favicon.svg?v=4" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=4">
+  <script src="receipt.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
 </head>
 <body>
 <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -24,16 +24,21 @@
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12l4 4v12a2 2 0 0 1-2 2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+
+  <symbol id="i-page" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01M7 13h5M7 16h9"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4V7a2 2 0 0 1 2-2Z"/><path d="M15 5v3m0 3v2m0 3v3M7 9h4M7 13h3"/></symbol>
+  <symbol id="i-controller" viewBox="0 0 24 24"><path d="M8 7h8c3 0 4 2 5 5l1 5c.5 3-2 4-4 2l-2-2H8l-2 2c-2 2-4.5 1-4-2l1-5c1-3 2-5 5-5Z"/><path d="M6 11v4m-2-2h4M16 12h.01M19 14h.01M10 7V4h4"/></symbol>
+  <symbol id="i-custom" viewBox="0 0 24 24"><path d="m4 19 10-10 3 3L7 22H4v-3ZM14 9l2-2a2 2 0 0 1 3 3l-2 2M6 3v5M3.5 5.5h5M19 17v5m-2.5-2.5h5"/></symbol>
 </defs></svg>
 <a class="skip-link" href="#briefForm">跳到需求表单</a>
 <header class="topbar">
-  <a class="brand" href="./" aria-label="定制化俱乐部网页首页"><span class="brand-mark rainbow-logo" id="brandMark" aria-hidden="true"><svg viewBox="0 0 48 48"><defs><linearGradient id="rainbow-logo-gradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f26378"/><stop offset=".25" stop-color="#f6b742"/><stop offset=".5" stop-color="#6dc58a"/><stop offset=".75" stop-color="#57bddd"/><stop offset="1" stop-color="#587ce8"/></linearGradient></defs><path d="M6 10 30 3 42 15 18 22Z" fill="url(#rainbow-logo-gradient)"/><path d="m6 24 12-4 24-7v14L18 34 6 38Z" fill="url(#rainbow-logo-gradient)" opacity=".75"/><path d="m6 38 24-7 12-4v12L18 46Z" fill="url(#rainbow-logo-gradient)" opacity=".48"/></svg></span><span><b id="brandTitle">定制化俱乐部网页</b><small>让每个俱乐部，都有自己的主场</small></span></a>
+  <a class="brand" href="./" aria-label="定制化网页首页"><span class="brand-mark custom-logo" id="brandMark" aria-hidden="true"><img src="logo.svg?v=4" alt="" width="48" height="48"></span><span><b id="brandTitle">定制化网页</b><small>让每个想法，都有专属的网页</small></span></a>
   <div class="header-actions"><span class="save-indicator"><i></i><span id="saveStatus" role="status">草稿保存在此浏览器</span></span><span class="header-signature">by akihowaito <span class="color-dots"><i></i><i></i><i></i><i></i></span></span></div>
 </header>
 <div class="app-shell">
   <aside class="sidebar" aria-label="填写步骤与草稿管理">
     <div class="sidebar-caption">项目工作台 <span>BRIEF</span></div>
-    <div class="sidebar-project"><span class="project-dot"></span><b>新项目需求</b><span class="tiny-pill">本地</span></div>
+    <div class="sidebar-project"><span class="project-dot"></span><b id="sidebarProjectType">俱乐部网页</b><span class="tiny-pill">本地</span></div>
     <div class="progress-heading"><span>填写进度</span><b id="progressCount">0 / 6</b></div>
     <progress id="progressBar" value="0" max="6" aria-label="已填写模块数量"></progress>
     <nav class="step-nav" aria-label="需求模块">
@@ -49,12 +54,22 @@
     <div class="sidebar-footer">AKI / TOOLS <span class="color-dots"><i></i><i></i><i></i><i></i></span></div>
   </aside>
   <main id="mainContent">
-    <div class="breadcrumb">工作台 <span>/</span> 俱乐部建站 <span>/</span><b>需求收集</b></div>
+    <div class="breadcrumb">工作台 <span>/</span> <span id="breadcrumbType">俱乐部网页</span> <span>/</span><b>需求收集</b></div>
     <section class="hero" aria-labelledby="heroTitle">
-      <div class="hero-copy"><div class="eyebrow"><span class="color-dots"><i></i><i></i><i></i><i></i></span> CUSTOMIZE YOUR OWN E-SPORTS WEBSITE AT HERE</div><h1 id="heroTitle">俱乐部网页<br>只为你专属打造</h1><p id="heroDesc">把品牌、内容和想要的功能整理清楚。<br>六个小步骤，生成一份可以直接沟通的建站需求。</p><div class="hero-tags"><span><svg><use href="#i-check"/></svg> 双端优化</span><span><svg><use href="#i-check"/></svg> 审美在线</span><span><svg><use href="#i-check"/></svg> 不套模板</span></div></div>
+      <div class="hero-copy"><div class="eyebrow"><span class="color-dots"><i></i><i></i><i></i><i></i></span> CUSTOMIZE YOUR OWN WEBSITE AT HERE</div><h1 id="heroTitle">你的想法<br>只为你专属打造</h1><p id="heroDesc">把品牌、内容和想要的功能整理清楚。<br>六个小步骤，生成一份可以直接沟通的建站需求。</p><div class="hero-tags"><span><svg><use href="#i-check"/></svg> 双端优化</span><span><svg><use href="#i-check"/></svg> 审美在线</span><span><svg><use href="#i-check"/></svg> 不套模板</span></div></div>
       <div class="brief-art" aria-hidden="true"><div class="art-paper"><span class="paper-kicker">YOUR NEXT CLUB WEBSITE</span><strong>Project<br>Brief<span class="paper-dot">.</span></strong><div class="paper-rule"></div><div class="paper-tags"><span>品牌 Brand</span><span>功能 Features</span><span>素材 Assets</span></div><div class="paper-lines"><i></i><i></i><i></i></div><div class="paper-bottom"><span>AKI STUDIO</span><svg><use href="#i-arrow"/></svg></div></div><div class="art-sticker"><svg><use href="#i-spark"/></svg></div></div>
     </section>
-    <div class="workspace-heading"><div><h2>整理你的新项目</h2><p>不确定的内容可以留空，后续再一起确认。</p></div><button class="button light" id="saveBtn" type="button"><svg><use href="#i-save"/></svg> 保存草稿</button></div>
+    <section class="project-types" id="projectTypes" aria-labelledby="projectTypesTitle">
+      <div class="project-types-heading"><div><h2 id="projectTypesTitle">你想定制什么？</h2><p>先选一个方向，再把你的想法整理清楚。</p></div><span>四种方向，同样专属</span></div>
+      <div class="project-type-grid" role="group" aria-label="选择网页定制类型">
+        <button class="project-type-card blue selected" data-project-type="club" type="button" aria-pressed="true"><span class="type-icon"><svg aria-hidden="true"><use href="#i-page"/></svg></span><span class="type-arrow" aria-hidden="true">↗</span><strong>俱乐部网页</strong><span class="type-description">品牌展示、菜单、成员与客服入口</span><span class="type-link">整理俱乐部需求 <span aria-hidden="true">→</span></span></button>
+        <button class="project-type-card coral" data-project-type="event" type="button" aria-pressed="false"><span class="type-icon"><svg aria-hidden="true"><use href="#i-ticket"/></svg></span><span class="type-arrow" aria-hidden="true">↗</span><strong>俱乐部活动网页</strong><span class="type-description">节日活动、周年庆、报名与规则展示</span><span class="type-link">整理活动需求 <span aria-hidden="true">→</span></span></button>
+        <button class="project-type-card pink" data-project-type="interactive" type="button" aria-pressed="false"><span class="type-icon"><svg aria-hidden="true"><use href="#i-controller"/></svg></span><span class="type-arrow" aria-hidden="true">↗</span><strong>互动玩法网页</strong><span class="type-description">把静态趣味单变成可参与的互动玩法</span><span class="type-link">整理玩法需求 <span aria-hidden="true">→</span></span></button>
+        <button class="project-type-card teal" data-project-type="other" type="button" aria-pressed="false"><span class="type-icon"><svg aria-hidden="true"><use href="#i-custom"/></svg></span><span class="type-arrow" aria-hidden="true">↗</span><strong>定制其他</strong><span class="type-description">有别的想法？描述你想实现的网页</span><span class="type-link">告诉我你的想法 <span aria-hidden="true">→</span></span></button>
+      </div><p class="type-switch-note">切换分类会保留已填写的内容。</p>
+    </section>
+    <div id="projectWorkspace">
+    <div class="workspace-heading"><div><h2 id="workspaceTitle">俱乐部网页需求</h2><p>当前选择：<span id="currentProjectType">俱乐部网页</span><a class="change-project-type" href="#projectTypes">更换类型 ↗</a></p></div><button class="button light" id="saveBtn" type="button"><svg><use href="#i-save"/></svg> 保存草稿</button></div>
     <div class="workspace">
       <div class="form-card">
         <div class="form-topline"><span><i></i> <span id="currentStepLabel">基础资料</span></span><span id="stepPosition">01 / 06</span></div>
@@ -94,11 +109,12 @@
       </div>
       <aside class="summary-card" aria-label="项目实时摘要">
         <div class="summary-head"><span>YOUR PROJECT</span><span class="color-dots"><i></i><i></i><i></i><i></i></span></div><h3 id="summaryName">新主场，正在酝酿。</h3><p class="summary-subtitle">你填写的想法，会汇集在这里。</p>
-        <dl><div><dt>主营游戏</dt><dd id="summaryGames">待填写</dd></div><div><dt>品牌风格</dt><dd id="summaryStyle">待选择</dd></div><div><dt>网站功能</dt><dd id="summaryFeatures">待选择</dd></div><div><dt>部署方式</dt><dd id="summaryDeploy">待确认</dd></div></dl>
+        <dl><div class="summary-type"><dt>定制类型</dt><dd id="summaryType">俱乐部网页</dd></div><div><dt>主营游戏</dt><dd id="summaryGames">待填写</dd></div><div><dt>品牌风格</dt><dd id="summaryStyle">待选择</dd></div><div><dt>网站功能</dt><dd id="summaryFeatures">待选择</dd></div><div><dt>部署方式</dt><dd id="summaryDeploy">待确认</dd></div></dl>
         <div class="summary-progress"><span>已填写模块</span><b id="summaryProgress">0 / 6</b></div><button class="button dark" id="previewBtn" type="button"><svg><use href="#i-eye"/></svg> 预览需求单</button><button class="button light" id="copyBtn" type="button">复制需求文字 <span>↗</span></button><p class="summary-footnote">完成后可分享图片或 PDF，<br>再自行发送给 akihowaito。</p>
       </aside>
     </div>
-    <footer class="main-footer"><span id="footerBrand">定制化俱乐部网页 · by akihowaito</span><span>一点想法，一个开始。<span class="footer-spark">✦</span></span></footer>
+    </div>
+    <footer class="main-footer"><span id="footerBrand">定制化网页 · by akihowaito</span><span>一点想法，一个开始。<span class="footer-spark">✦</span></span></footer>
   </main>
 </div>
 <dialog id="previewDialog" class="dialog preview-dialog" aria-labelledby="previewTitle"><div class="dialog-head"><div><span class="eyebrow">READY TO SHARE</span><h2 id="previewTitle">你的项目需求单</h2><p>检查一下内容，再自行发送给 akihowaito。</p></div><button class="close-button" type="button" data-close aria-label="关闭需求预览">×</button></div><pre id="previewText" tabindex="0"></pre><div class="dialog-actions"><button class="button light" id="textBtn" type="button"><svg><use href="#i-file"/></svg> 下载文字</button><button class="button light" id="imageBtn" type="button">生成图片 / PDF</button><button class="button dark" id="sheetCopyBtn" type="button">复制需求单 <span>↗</span></button></div></dialog>
